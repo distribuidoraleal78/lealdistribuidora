@@ -1,0 +1,21 @@
+# dependências
+/node_modules
+
+# build
+/.next/
+/out/
+/.wrangler/
+/.vercel
+
+# variáveis de ambiente — NUNCA subir pro git, contém segredo real
+.env
+.env*.local
+
+# sistema
+.DS_Store
+*.pem
+npm-debug.log*
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
