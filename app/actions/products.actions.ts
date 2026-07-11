@@ -18,7 +18,6 @@ function parseProductForm(formData: FormData): Omit<ProductInput, "image_url" | 
   slug: string;
 } {
   const name = String(formData.get("name") ?? "").trim();
-
   return {
     name,
     slug: slugify(name),
@@ -37,14 +36,13 @@ function parseProductForm(formData: FormData): Omit<ProductInput, "image_url" | 
 async function handleImageUpload(formData: FormData, productCode: string): Promise<string | null> {
   const file = formData.get("image") as File | null;
   if (!file || file.size === 0) return null;
-
   const buffer = Buffer.from(await file.arrayBuffer());
   const key = buildImageKey(productCode, file.name);
   return uploadProductImage(key, buffer, file.type);
 }
 
 export async function createProductAction(formData: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const fields = parseProductForm(formData);
 
   let imageUrl: string | null = null;
@@ -59,12 +57,11 @@ export async function createProductAction(formData: FormData) {
 }
 
 export async function updateProductAction(productId: string, formData: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const fields = parseProductForm(formData);
-
   const removeImage = formData.get("removeImage") === "on";
-  const uploaded = await handleImageUpload(formData, fields.code ?? fields.slug);
 
+  const uploaded = await handleImageUpload(formData, fields.code ?? fields.slug);
   const update: Partial<ProductInput> = { ...fields };
 
   if (uploaded) {
@@ -85,7 +82,7 @@ export async function updateProductAction(productId: string, formData: FormData)
 }
 
 export async function deleteProductAction(productId: string, imageUrl: string | null) {
-  const supabase = createClient();
+  const supabase = await createClient();
   if (imageUrl) await deleteProductImage(imageUrl);
   await deleteProduct(supabase, productId);
   revalidatePath("/admin");
@@ -93,14 +90,14 @@ export async function deleteProductAction(productId: string, imageUrl: string | 
 }
 
 export async function toggleActiveAction(productId: string, active: boolean) {
-  const supabase = createClient();
+  const supabase = await createClient();
   await toggleProductActive(supabase, productId, active);
   revalidatePath("/admin");
   revalidatePath("/catalogo");
 }
 
 export async function duplicateProductAction(productId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   await duplicateProduct(supabase, productId);
   revalidatePath("/admin");
 }
