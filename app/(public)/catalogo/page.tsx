@@ -12,25 +12,26 @@ export const metadata: Metadata = {
 };
 
 interface CatalogoPageProps {
-  searchParams: {
+  searchParams: Promise<{
     search?: string;
     brand?: string;
     category?: string;
     packaging?: string;
     sort?: string;
-  };
+  }>;
 }
 
 export default async function CatalogoPage({ searchParams }: CatalogoPageProps) {
+  const resolvedSearchParams = await searchParams;
   const supabase = createClient();
 
   const [products, filterOptions] = await Promise.all([
     getPublicProducts(supabase, {
-      search: searchParams.search,
-      brand: searchParams.brand,
-      category: searchParams.category,
-      packaging: searchParams.packaging,
-      sort: (searchParams.sort as ProductSortOption) ?? "name",
+      search: resolvedSearchParams.search,
+      brand: resolvedSearchParams.brand,
+      category: resolvedSearchParams.category,
+      packaging: resolvedSearchParams.packaging,
+      sort: (resolvedSearchParams.sort as ProductSortOption) ?? "name",
     }),
     getFilterOptions(supabase),
   ]);
