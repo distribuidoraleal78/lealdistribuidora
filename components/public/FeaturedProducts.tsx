@@ -4,7 +4,7 @@ import { getFeaturedProducts } from "@/services/products.service";
 import { ProductCard } from "./ProductCard";
 
 export async function FeaturedProducts() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const products = await getFeaturedProducts(supabase, 8);
 
   if (products.length === 0) return null;
