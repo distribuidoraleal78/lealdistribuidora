@@ -7,12 +7,13 @@ import { getProductBySlug } from "@/services/products.service";
 import { AddToCartButton } from "@/components/public/AddToCartButton";
 
 interface ProductPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const { slug } = await params;
   const supabase = createClient();
-  const product = await getProductBySlug(supabase, params.slug);
+  const product = await getProductBySlug(supabase, slug);
 
   if (!product) return { title: "Produto não encontrado" };
 
@@ -23,8 +24,9 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
+  const { slug } = await params;
   const supabase = createClient();
-  const product = await getProductBySlug(supabase, params.slug);
+  const product = await getProductBySlug(supabase, slug);
 
   if (!product) notFound();
 
