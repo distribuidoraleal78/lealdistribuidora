@@ -12,7 +12,7 @@ export default async function AdminProdutosPage({
   searchParams: Promise<{ search?: string }>;
 }) {
   const resolvedSearchParams = await searchParams;
-  const supabase = createClient();
+  const supabase = await createClient();
   const products = await getAllProductsAdmin(supabase, resolvedSearchParams.search);
 
   return (
@@ -86,7 +86,6 @@ export default async function AdminProdutosPage({
             ))}
           </tbody>
         </table>
-
         {products.length === 0 && (
           <p className="p-8 text-center text-sm text-ink-muted">
             Nenhum produto cadastrado ainda.
