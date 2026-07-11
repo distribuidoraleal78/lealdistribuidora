@@ -23,7 +23,7 @@ interface CatalogoPageProps {
 
 export default async function CatalogoPage({ searchParams }: CatalogoPageProps) {
   const resolvedSearchParams = await searchParams;
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const [products, filterOptions] = await Promise.all([
     getPublicProducts(supabase, {
