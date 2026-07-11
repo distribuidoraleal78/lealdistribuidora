@@ -9,8 +9,8 @@ export default async function EditarProdutoPage({
   params: Promise<{ id: string }>;
 }) {
   const resolvedParams = await params;
-  const supabase = createClient();
-  
+  const supabase = await createClient();
+
   const { data: product } = await supabase
     .from("products")
     .select("*")
