@@ -3,12 +3,18 @@ import { createClient } from "@/lib/supabase/server";
 import { ProductForm } from "@/components/admin/ProductForm";
 import { updateProductAction } from "@/app/actions/products.actions";
 
-export default async function EditarProdutoPage({ params }: { params: { id: string } }) {
+export default async function EditarProdutoPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const resolvedParams = await params;
   const supabase = createClient();
+  
   const { data: product } = await supabase
     .from("products")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", resolvedParams.id)
     .maybeSingle();
 
   if (!product) notFound();
