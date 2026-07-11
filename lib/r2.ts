@@ -1,20 +1,18 @@
 // Cliente do Cloudflare R2 (compatível com S3) — usado para subir e apagar fotos de produto.
 // Só roda no servidor (Server Actions / Route Handlers), nunca no navegador.
-
 import "server-only";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
-const r2 = new S3Client({
-  region: "auto",
-  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-  },
-});
-
-const BUCKET = process.env.R2_BUCKET_NAME!;
-const PUBLIC_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL!;
+function getR2Client() {
+  return new S3Client({
+    region: "auto",
+    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    credentials: {
+      accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+    },
+  });
+}
 
 /**
  * Sobe um arquivo de imagem para o bucket "products" e devolve a URL pública final.
@@ -25,6 +23,10 @@ export async function uploadProductImage(
   file: Buffer,
   contentType: string
 ): Promise<string> {
+  const r2 = getR2Client();
+  const BUCKET = process.env.R2_BUCKET_NAME!;
+  const PUBLIC_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL!;
+
   await r2.send(
     new PutObjectCommand({
       Bucket: BUCKET,
@@ -43,8 +45,11 @@ export async function uploadProductImage(
  * Chamado sempre que uma foto é substituída, para não acumular lixo no storage.
  */
 export async function deleteProductImage(imageUrl: string): Promise<void> {
+  const PUBLIC_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL!;
   if (!imageUrl || !imageUrl.startsWith(PUBLIC_URL)) return;
 
+  const r2 = getR2Client();
+  const BUCKET = process.env.R2_BUCKET_NAME!;
   const key = imageUrl.replace(`${PUBLIC_URL}/`, "");
 
   await r2.send(
