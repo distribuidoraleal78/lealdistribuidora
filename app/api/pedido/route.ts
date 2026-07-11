@@ -1,6 +1,5 @@
 // Rota pública chamada pela página /pedido ao confirmar o carrinho.
 // Envia os dados para o Google Sheets (Apps Script) e devolve o link do WhatsApp pronto.
-
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { buildWhatsAppMessage } from "@/lib/utils";
@@ -38,9 +37,10 @@ export async function POST(request: Request) {
 
   const order = parsed.data;
 
-  const itemsSummary = order.items
-    .map((item) => `${item.quantity}x ${item.name}${item.code ? ` (${item.code})` : ""}`)
-    .join("; ");
+  // Lista de itens formatada — uma string por item, para a planilha criar uma linha para cada.
+  const itemsList = order.items.map(
+    (item) => `${item.quantity}x ${item.name}${item.code ? ` (${item.code})` : ""}`
+  );
 
   // Envia para a planilha — se o webhook falhar, ainda deixamos o pedido seguir para o
   // WhatsApp (não trava o cliente por um problema na planilha).
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
           empresa: order.companyName,
           telefone: order.phone,
           cidade: order.city,
-          itens: itemsSummary,
+          itens: itemsList,
           observacoes: order.notes ?? "",
         }),
       });
