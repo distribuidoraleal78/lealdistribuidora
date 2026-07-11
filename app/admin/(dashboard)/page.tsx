@@ -9,10 +9,11 @@ import { Input } from "@/components/ui/Input";
 export default async function AdminProdutosPage({
   searchParams,
 }: {
-  searchParams: { search?: string };
+  searchParams: Promise<{ search?: string }>;
 }) {
-  const supabase = createClient();
-  const products = await getAllProductsAdmin(supabase, searchParams.search);
+  const resolvedSearchParams = await searchParams;
+  const supabase = await createClient();
+  const products = await getAllProductsAdmin(supabase, resolvedSearchParams.search);
 
   return (
     <div>
@@ -30,7 +31,7 @@ export default async function AdminProdutosPage({
       <form className="mt-4">
         <Input
           name="search"
-          defaultValue={searchParams.search}
+          defaultValue={resolvedSearchParams.search}
           placeholder="Buscar por nome ou código"
           className="max-w-sm"
         />
@@ -85,7 +86,6 @@ export default async function AdminProdutosPage({
             ))}
           </tbody>
         </table>
-
         {products.length === 0 && (
           <p className="p-8 text-center text-sm text-ink-muted">
             Nenhum produto cadastrado ainda.
