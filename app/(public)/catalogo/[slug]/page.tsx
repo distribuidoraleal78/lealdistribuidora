@@ -12,7 +12,8 @@ interface ProductPageProps {
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const supabase = createClient();
+  // ADICIONADO O AWAIT AQUI:
+  const supabase = await createClient(); 
   const product = await getProductBySlug(supabase, slug);
 
   if (!product) return { title: "Produto não encontrado" };
@@ -25,7 +26,8 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const supabase = createClient();
+  // ADICIONADO O AWAIT AQUI TAMBÉM:
+  const supabase = await createClient(); 
   const product = await getProductBySlug(supabase, slug);
 
   if (!product) notFound();
