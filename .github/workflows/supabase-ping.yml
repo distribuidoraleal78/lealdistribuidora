@@ -23,4 +23,8 @@ jobs:
           [ "$status" = "200" ] || exit 1
 
       - name: Renova o agendamento (impede desativação por 60 dias)
-        uses: gautamkrishnar/keepalive-workflow@v2
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method PUT \
+            repos/${{ github.repository }}/actions/workflows/supabase-ping.yml/enable
